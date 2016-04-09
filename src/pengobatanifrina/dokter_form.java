@@ -11,20 +11,34 @@ package pengobatanifrina;
  * @author Satria
  */
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import pengobatanifrina.javaconnect;
+import net.proteanit.sql.DbUtils;
+
 public class dokter_form extends javax.swing.JFrame {
     Connection conn = null;
     ResultSet rs =null;
     PreparedStatement stmnt = null;
+    int selectedRow;
+    float persentaseApotek = 0.2f;
     /**
      * Creates new form dokter_form
      */
     public dokter_form() {
         initComponents();
         conn = javaconnect.ConnectDb();
+        UpdateTable();
+        UpdateTablePemeriksaan();
+        UpdateTablePengobatan();
     }
 
     /**
@@ -37,7 +51,51 @@ public class dokter_form extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel5 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        addPengobatan = new javax.swing.JButton();
+        UbahPengobatan = new javax.swing.JButton();
+        HapusPengobatan = new javax.swing.JButton();
+        namaDokterCB = new javax.swing.JComboBox();
+        namaPemeriksaanCB = new javax.swing.JComboBox();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        TablePengobatan = new javax.swing.JTable();
+        TanggalPengobatan = new com.toedter.calendar.JDateChooser();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        TotalDokter = new javax.swing.JButton();
+        hasilBiayaDokterText = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        totalDokterAllText = new javax.swing.JTextField();
+        hasilPersenApotek = new javax.swing.JTextField();
+        TotalPersentase = new javax.swing.JButton();
+        ComboBoxDokter = new javax.swing.JComboBox();
+        jLabel8 = new javax.swing.JLabel();
+        namaBulan = new javax.swing.JComboBox();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        TableTotal = new javax.swing.JTable();
+        LabelBulan = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        addRawat = new javax.swing.JButton();
+        txt_BiayaPemeriksaan = new javax.swing.JTextField();
+        txt_namaPemeriksaan = new javax.swing.JTextField();
+        namaDokter1 = new javax.swing.JLabel();
+        keahlian1 = new javax.swing.JLabel();
+        UbahRawat = new javax.swing.JButton();
+        HapusRawat = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        TablePemeriksaan = new javax.swing.JTable();
+        HapusPemeriksaan = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         namaDokter = new javax.swing.JLabel();
         keahlian = new javax.swing.JLabel();
@@ -46,39 +104,10 @@ public class dokter_form extends javax.swing.JFrame {
         txt_keahlian = new javax.swing.JTextField();
         txt_noHP = new javax.swing.JTextField();
         addDokter = new javax.swing.JButton();
-        addDokter2 = new javax.swing.JButton();
-        addDokter3 = new javax.swing.JButton();
-        jPanel2 = new javax.swing.JPanel();
-        addDokter1 = new javax.swing.JButton();
-        txt_keahlian1 = new javax.swing.JTextField();
-        txt_namaDokter1 = new javax.swing.JTextField();
-        namaDokter1 = new javax.swing.JLabel();
-        keahlian1 = new javax.swing.JLabel();
-        addDokter4 = new javax.swing.JButton();
-        addDokter5 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        namaDokterCB = new javax.swing.JComboBox();
-        namaPerawatanCB = new javax.swing.JComboBox();
-        tanggal = new javax.swing.JTextField();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
-        hasilBiayaDokterText = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        totalDokterAllText = new javax.swing.JTextField();
-        hasilPersenApotek = new javax.swing.JTextField();
-        jButton5 = new javax.swing.JButton();
-        ComboBoxDokter = new javax.swing.JComboBox();
-        jLabel8 = new javax.swing.JLabel();
-        namaBulan = new javax.swing.JComboBox();
+        UbahDokter = new javax.swing.JButton();
+        HapusDokter = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        TableDokter = new javax.swing.JTable();
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -91,7 +120,391 @@ public class dokter_form extends javax.swing.JFrame {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane2.setViewportView(jTable1);
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane3.setViewportView(jTable2);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel1.setText("Nama Dokter");
+
+        jLabel2.setText("Nama Pemeriksaan");
+
+        jLabel3.setText("Tanggal Pengobatan");
+
+        addPengobatan.setText("Tambah Pengobatan");
+        addPengobatan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addPengobatanActionPerformed(evt);
+            }
+        });
+
+        UbahPengobatan.setText("Ubah Pengobatan");
+        UbahPengobatan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UbahPengobatanActionPerformed(evt);
+            }
+        });
+
+        HapusPengobatan.setText("Hapus Pengobatan");
+        HapusPengobatan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HapusPengobatanActionPerformed(evt);
+            }
+        });
+
+        TablePengobatan.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        TablePengobatan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TablePengobatanMouseClicked(evt);
+            }
+        });
+        jScrollPane5.setViewportView(TablePengobatan);
+
+        TanggalPengobatan.setDateFormatString("yyyy-MM-dd");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addContainerGap(20, Short.MAX_VALUE)
+                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addGap(53, 53, 53))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addGap(33, 33, 33)))
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(namaPemeriksaanCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(namaDokterCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(addPengobatan)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(UbahPengobatan)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(HapusPengobatan)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(24, 24, 24)
+                                .addComponent(TanggalPengobatan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(namaDokterCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(namaPemeriksaanCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(TanggalPengobatan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addPengobatan)
+                    .addComponent(UbahPengobatan)
+                    .addComponent(HapusPengobatan))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Penjadwalan Pengobatan", jPanel3);
+
+        jLabel4.setText("Nama Dokter");
+
+        TotalDokter.setText("Total Dokter");
+        TotalDokter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TotalDokterActionPerformed(evt);
+            }
+        });
+
+        hasilBiayaDokterText.setText("0");
+        hasilBiayaDokterText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hasilBiayaDokterTextActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("Hasil Biaya Dokter");
+
+        jLabel6.setText("Hasil Persentase Apotek");
+
+        jLabel7.setText("Total Seluruh Dokter");
+
+        hasilPersenApotek.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hasilPersenApotekActionPerformed(evt);
+            }
+        });
+
+        TotalPersentase.setText("Total Persentase");
+        TotalPersentase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TotalPersentaseActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setText("Bulan");
+
+        namaBulan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember" }));
+
+        TableTotal.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane6.setViewportView(TableTotal);
+
+        LabelBulan.setText("___");
+
+        jLabel9.setText("Nama Bulan Efektif");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 459, Short.MAX_VALUE)
+                        .addGroup(jPanel4Layout.createSequentialGroup()
+                            .addComponent(jLabel5)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addComponent(hasilBiayaDokterText, javax.swing.GroupLayout.PREFERRED_SIZE, 362, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(TotalPersentase, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel4)
+                                .addComponent(jLabel8))
+                            .addGap(28, 28, 28)
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel4Layout.createSequentialGroup()
+                                    .addComponent(namaBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(0, 0, Short.MAX_VALUE))
+                                .addComponent(ComboBoxDokter, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel7)
+                                .addComponent(jLabel9))
+                            .addGap(36, 36, 36)
+                            .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(LabelBulan)
+                                .addGroup(jPanel4Layout.createSequentialGroup()
+                                    .addComponent(totalDokterAllText)
+                                    .addGap(29, 29, 29)))))
+                    .addComponent(TotalDokter)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addGap(18, 18, 18)
+                        .addComponent(hasilPersenApotek, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(13, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4)
+                    .addComponent(ComboBoxDokter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(namaBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(TotalDokter)
+                .addGap(4, 4, 4)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hasilBiayaDokterText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 363, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(TotalPersentase)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(LabelBulan)
+                    .addComponent(jLabel9))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(totalDokterAllText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(hasilPersenApotek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(76, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Total", jPanel4);
+
+        addRawat.setText("Tambah Pemeriksaan");
+        addRawat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addRawatActionPerformed(evt);
+            }
+        });
+
+        txt_namaPemeriksaan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txt_namaPemeriksaanActionPerformed(evt);
+            }
+        });
+
+        namaDokter1.setText("Nama Pemeriksaan");
+
+        keahlian1.setText("Biaya Pemeriksaan");
+
+        UbahRawat.setText("Ubah Pemeriksaan");
+        UbahRawat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UbahRawatActionPerformed(evt);
+            }
+        });
+
+        HapusRawat.setText("Hapus Perawatan");
+        HapusRawat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HapusRawatActionPerformed(evt);
+            }
+        });
+
+        TablePemeriksaan.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        TablePemeriksaan.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TablePemeriksaanMouseClicked(evt);
+            }
+        });
+        jScrollPane4.setViewportView(TablePemeriksaan);
+
+        HapusPemeriksaan.setText("Hapus Pemeriksaan");
+        HapusPemeriksaan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HapusPemeriksaanActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(keahlian1)
+                                    .addComponent(namaDokter1))
+                                .addGap(40, 40, 40)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txt_namaPemeriksaan, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
+                                    .addComponent(txt_BiayaPemeriksaan)))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(673, 673, 673)
+                                .addComponent(HapusRawat)))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 466, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(addRawat, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(27, 27, 27)
+                                .addComponent(UbahRawat)
+                                .addGap(18, 18, 18)
+                                .addComponent(HapusPemeriksaan)))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(namaDokter1)
+                    .addComponent(txt_namaPemeriksaan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keahlian1)
+                    .addComponent(txt_BiayaPemeriksaan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addRawat)
+                    .addComponent(UbahRawat)
+                    .addComponent(HapusPemeriksaan))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(HapusRawat)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(119, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Pemeriksaan", jPanel2);
 
         namaDokter.setText("Nama Dokter");
 
@@ -118,19 +531,37 @@ public class dokter_form extends javax.swing.JFrame {
             }
         });
 
-        addDokter2.setText("Ubah Dokter");
-        addDokter2.addActionListener(new java.awt.event.ActionListener() {
+        UbahDokter.setText("Ubah Dokter");
+        UbahDokter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDokter2ActionPerformed(evt);
+                UbahDokterActionPerformed(evt);
             }
         });
 
-        addDokter3.setText("Hapus Dokter");
-        addDokter3.addActionListener(new java.awt.event.ActionListener() {
+        HapusDokter.setText("Hapus Dokter");
+        HapusDokter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDokter3ActionPerformed(evt);
+                HapusDokterActionPerformed(evt);
             }
         });
+
+        TableDokter.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        TableDokter.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TableDokterMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(TableDokter);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -139,28 +570,29 @@ public class dokter_form extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(namaDokter)
-                                .addGap(26, 26, 26)
-                                .addComponent(txt_namaDokter, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(keahlian)
                                     .addComponent(noHP))
                                 .addGap(41, 41, 41)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txt_noHP)
-                                    .addComponent(txt_keahlian, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE))))
-                        .addGap(149, 149, 149))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(addDokter)
-                        .addGap(18, 18, 18)
-                        .addComponent(addDokter2)
-                        .addGap(18, 18, 18)
-                        .addComponent(addDokter3)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                    .addComponent(txt_keahlian)
+                                    .addComponent(txt_noHP)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(addDokter)
+                                .addGap(18, 18, 18)
+                                .addComponent(UbahDokter)
+                                .addGap(18, 18, 18)
+                                .addComponent(HapusDokter)
+                                .addGap(0, 131, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(namaDokter)
+                                .addGap(26, 26, 26)
+                                .addComponent(txt_namaDokter)))
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -180,281 +612,30 @@ public class dokter_form extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addDokter)
-                    .addComponent(addDokter2)
-                    .addComponent(addDokter3))
-                .addGap(135, 135, 135))
+                    .addComponent(UbahDokter)
+                    .addComponent(HapusDokter))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
         );
 
         addDokter.getAccessibleContext().setAccessibleName("addDokter");
 
         jTabbedPane1.addTab("Dokter", jPanel1);
 
-        addDokter1.setText("Tambah Perawatan");
-        addDokter1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDokter1ActionPerformed(evt);
-            }
-        });
-
-        txt_namaDokter1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txt_namaDokter1ActionPerformed(evt);
-            }
-        });
-
-        namaDokter1.setText("Nama Perawatan");
-
-        keahlian1.setText("Biaya Perawatan");
-
-        addDokter4.setText("Ubah Perawatan");
-        addDokter4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDokter4ActionPerformed(evt);
-            }
-        });
-
-        addDokter5.setText("Hapus Perawatan");
-        addDokter5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDokter5ActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(keahlian1)
-                            .addComponent(namaDokter1))
-                        .addGap(40, 40, 40)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txt_namaDokter1)
-                            .addComponent(txt_keahlian1))
-                        .addGap(149, 149, 149))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(addDokter1, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                        .addComponent(addDokter4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addDokter5)
-                        .addGap(4, 4, 4))))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(namaDokter1)
-                    .addComponent(txt_namaDokter1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(keahlian1)
-                    .addComponent(txt_keahlian1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addDokter1)
-                    .addComponent(addDokter4)
-                    .addComponent(addDokter5))
-                .addGap(135, 135, 135))
-        );
-
-        jTabbedPane1.addTab("Perawatan", jPanel2);
-
-        jLabel1.setText("Nama Dokter");
-
-        jLabel2.setText("Nama Perawatan");
-
-        jLabel3.setText("Tanggal Pengobatan");
-
-        jButton3.setText("Tambah Pengobatan");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
-        jButton1.setText("Ubah Pengobatan");
-
-        jButton2.setText("Hapus Pengobatan");
-
-        namaDokterCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        namaPerawatanCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(tanggal))
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                            .addComponent(jButton3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jButton1))
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel3Layout.createSequentialGroup()
-                                    .addComponent(jLabel1)
-                                    .addGap(53, 53, 53))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addGap(33, 33, 33)))
-                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(namaDokterCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(namaPerawatanCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(namaDokterCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(namaPerawatanCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(tanggal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(124, Short.MAX_VALUE))
-        );
-
-        jTabbedPane1.addTab("Penjadwalan Pengobatan", jPanel3);
-
-        jLabel4.setText("Nama Dokter");
-
-        jButton4.setText("Total Dokter");
-
-        hasilBiayaDokterText.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hasilBiayaDokterTextActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText("Hasil Biaya Dokter");
-
-        jLabel6.setText("Hasil Persentase Apotek");
-
-        jLabel7.setText("Total Seluruh Dokter");
-
-        hasilPersenApotek.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hasilPersenApotekActionPerformed(evt);
-            }
-        });
-
-        jButton5.setText("Total Persentase");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-
-        ComboBoxDokter.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jLabel8.setText("Bulan");
-
-        namaBulan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton4)
-                    .addComponent(jButton5)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(hasilPersenApotek, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(hasilBiayaDokterText)
-                            .addComponent(ComboBoxDokter, 0, 154, Short.MAX_VALUE)))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel7)
-                            .addComponent(jLabel8))
-                        .addGap(28, 28, 28)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(totalDokterAllText, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
-                            .addComponent(namaBulan, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(125, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4)
-                    .addComponent(ComboBoxDokter, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(hasilBiayaDokterText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addGap(19, 19, 19)
-                .addComponent(jButton4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel8)
-                    .addComponent(namaBulan, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(totalDokterAllText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(hasilPersenApotek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addGap(18, 18, 18)
-                .addComponent(jButton5)
-                .addGap(21, 21, 21))
-        );
-
-        jTabbedPane1.addTab("Total", jPanel4);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jTabbedPane1)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 487, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1)
-                .addContainerGap())
+                .addComponent(jTabbedPane1))
         );
 
         pack();
@@ -477,8 +658,76 @@ public class dokter_form extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
         }
+        UpdateTable();
     }//GEN-LAST:event_addDokterActionPerformed
 
+    private void UpdateTable(){
+        String sql = "SELECT dokter_id AS No, dokter_name AS Nama, dokter_spesialis AS Keahlian, no_telp AS Nomor_HP FROM dokter";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            TableDokter.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        FillComboboxDokter();
+    }
+    
+    private void FillComboboxDokter(){
+        String sql = "SELECT * FROM dokter";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            
+            while(rs.next()){
+                String name = rs.getString("dokter_name");
+                namaDokterCB.addItem(name);
+                ComboBoxDokter.addItem(name);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void FillComboboxPemeriksaan(){
+        String sql = "SELECT * FROM pemeriksaan";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            
+            while(rs.next()){
+                String name = rs.getString("nama_pemeriksaan");
+                namaPemeriksaanCB.addItem(name);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void UpdateTablePemeriksaan(){
+        String sql = "SELECT pemeriksaan_id AS No, nama_pemeriksaan AS Nama_Pemeriksaan, biaya_pemeriksaan AS Biaya FROM pemeriksaan";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            TablePemeriksaan.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        FillComboboxPemeriksaan();
+    }
+    
+    private void UpdateTablePengobatan(){
+        String sql = "SELECT pengobatan_id as ID , tanggal_pemeriksaan AS Tanggal, nama_pemeriksaan AS Nama_Pemeriksaan, dokter_name AS Nama_Dokter "+
+                ",biaya_pemeriksaan AS Biaya FROM pemeriksaan NATURAL JOIN pengobatan NATURAL JOIN dokter";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            TablePengobatan.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     private void txt_noHPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_noHPActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_noHPActionPerformed
@@ -487,45 +736,408 @@ public class dokter_form extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_namaDokterActionPerformed
 
-    private void addDokter1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDokter1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addDokter1ActionPerformed
+    private void addRawatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addRawatActionPerformed
+        String sqlCommand = "INSERT INTO pemeriksaan (nama_pemeriksaan,biaya_pemeriksaan)VALUES(?,?)";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        int Biaya;
+        if (txt_BiayaPemeriksaan.getText().equals("")){
+            Biaya = 0;
+        } else {
+        Biaya = Integer.parseInt(txt_BiayaPemeriksaan.getText());
+        }
+        try {
+            stmnt.setString(1,txt_namaPemeriksaan.getText());
+            stmnt.setInt(2,Biaya);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            stmnt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePemeriksaan();
+    }//GEN-LAST:event_addRawatActionPerformed
 
-    private void txt_namaDokter1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_namaDokter1ActionPerformed
+    public static void setNumericOnly(JTextField jTextField){
+        jTextField.addKeyListener(new KeyAdapter() {
+             public void keyTyped(KeyEvent e) {
+               char c = e.getKeyChar();
+               if ((!Character.isDigit(c) ||
+                  (c == KeyEvent.VK_BACK_SPACE) ||
+                  (c == KeyEvent.VK_DELETE))) {
+                    e.consume();
+                  }
+             }
+        });
+    }
+    
+    private void txt_namaPemeriksaanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_namaPemeriksaanActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txt_namaDokter1ActionPerformed
+    }//GEN-LAST:event_txt_namaPemeriksaanActionPerformed
 
-    private void addDokter2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDokter2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addDokter2ActionPerformed
+    private void UbahDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UbahDokterActionPerformed
+        String sqlCommand = "UPDATE dokter SET dokter_name = ?,dokter_spesialis = ?,no_telp =? WHERE dokter_id = ?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stmnt.setString(1,txt_namaDokter.getText());
+            stmnt.setString(2,txt_keahlian.getText());
+            stmnt.setString(3,txt_noHP.getText());
+            stmnt.setInt(4,selectedRow);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            stmnt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTable();
+    }//GEN-LAST:event_UbahDokterActionPerformed
 
-    private void addDokter3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDokter3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addDokter3ActionPerformed
+    private void HapusDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusDokterActionPerformed
+        String sqlCommand = "DELETE FROM dokter WHERE dokter_id = ?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stmnt.setInt(1,selectedRow);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog (null, "Apakah anda yakin ingin menghapus dokter","Warning",dialogButton);
+            if (dialogResult == JOptionPane.YES_OPTION){
+                stmnt.executeUpdate();
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTable();
+    }//GEN-LAST:event_HapusDokterActionPerformed
 
-    private void addDokter4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDokter4ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addDokter4ActionPerformed
+    private void UbahRawatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UbahRawatActionPerformed
+        String sqlCommand = "UPDATE pemeriksaan SET nama_pemeriksaan = ?,biaya_pemeriksaan = ? WHERE pemeriksaan_id = ?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stmnt.setString(1,txt_namaPemeriksaan.getText());
+            stmnt.setString(2,txt_BiayaPemeriksaan.getText());
+            stmnt.setInt(3,selectedRow);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            stmnt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePemeriksaan();
+    }//GEN-LAST:event_UbahRawatActionPerformed
 
-    private void addDokter5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDokter5ActionPerformed
+    private void HapusRawatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusRawatActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_addDokter5ActionPerformed
+    }//GEN-LAST:event_HapusRawatActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void addPengobatanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addPengobatanActionPerformed
+        PreparedStatement stDokter = null,stPemeriksaan = null;
+        int DokterID = 0, PemeriksaanID = 0;
+        java.sql.Date sqldate = null;
+        String nm = (String)namaDokterCB.getSelectedItem();
+        String nmPemeriksaan = (String)namaPemeriksaanCB.getSelectedItem();
+        java.util.Date d = TanggalPengobatan.getDate();
+        if (d == null) {
+            System.out.println("No date specified!");
+        } else {
+            sqldate = new java.sql.Date(d.getTime());
+        }
+        //use sql to insert
+        String getDokterID = "SELECT dokter_id FROM dokter WHERE dokter_name = ?";
+        String getPeriksaID = "SELECT pemeriksaan_id FROM pemeriksaan WHERE nama_pemeriksaan = ?";
+        String sqlCommand = "INSERT INTO pengobatan (dokter_id,pemeriksaan_id,tanggal_pemeriksaan)VALUES(?,?,?)";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+            stDokter = conn.prepareStatement(getDokterID);
+            stPemeriksaan = conn.prepareStatement(getPeriksaID);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stDokter.setString(1,nm);
+            rs = stDokter.executeQuery();
+            while(rs.next()){
+                DokterID = rs.getInt("dokter_id");
+            }
+            stPemeriksaan.setString(1,nmPemeriksaan);
+            rs = stPemeriksaan.executeQuery();
+            while(rs.next()){
+                PemeriksaanID = rs.getInt("pemeriksaan_id");
+            }
+            if (DokterID != 0 && PemeriksaanID != 0){
+                stmnt.setInt(1,DokterID);
+                stmnt.setInt(2,PemeriksaanID);
+                stmnt.setString(3, sqldate.toString());
+                //use stmnt.executeQuery(); for reading database
+                //use stmnt.executeUpdate(); for Insert, Update, Delete
+                stmnt.executeUpdate();
+            } else {
+                JOptionPane.showMessageDialog(null, "Terdapat kesalahan dalam input");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePengobatan();
+        
+    }//GEN-LAST:event_addPengobatanActionPerformed
 
-    private void hasilBiayaDokterTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hasilBiayaDokterTextActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_hasilBiayaDokterTextActionPerformed
+    private void TableDokterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TableDokterMouseClicked
+        int row = TableDokter.getSelectedRow();
+
+        if(row == -1)
+        {
+            // No row selected
+            // Show error message
+            JOptionPane.showMessageDialog(null,"Silahkan pilih dokter terlebih dahulu");
+        }
+        else
+        {
+            int dokter_id = (int) (TableDokter.getModel().getValueAt(row, 0));
+            String dokter_name = (TableDokter.getModel().getValueAt(row, 1).toString());
+            String dokter_spesialis = (TableDokter.getModel().getValueAt(row, 2).toString());
+            String dokter_HP = (TableDokter.getModel().getValueAt(row, 3).toString());
+            // do whatever you need to do with the data from the row
+            selectedRow = dokter_id;
+            txt_namaDokter.setText(dokter_name);
+            txt_keahlian.setText(dokter_spesialis);
+            txt_noHP.setText(dokter_HP);
+            
+        }
+    }//GEN-LAST:event_TableDokterMouseClicked
+
+    private void TotalPersentaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TotalPersentaseActionPerformed
+        String sqlCommand = "SELECT sum(biaya_pemeriksaan) as total FROM pemeriksaan NATURAL JOIN pengobatan WHERE strftime('%m', tanggal_pemeriksaan) = ?";
+        
+        int bulan = namaBulan.getSelectedIndex() + 1;
+        String strBulan = "0"+bulan;
+        int total = 0;
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+            stmnt.setString(1, strBulan);
+            rs = stmnt.executeQuery();
+            while(rs.next()){
+                total = rs.getInt("total");
+            }
+            totalDokterAllText.setText(Integer.toString(total));
+
+            float persentaseNow = total * persentaseApotek;
+            hasilPersenApotek.setText(Float.toString(persentaseNow));
+            
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_TotalPersentaseActionPerformed
 
     private void hasilPersenApotekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hasilPersenApotekActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_hasilPersenApotekActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void hasilBiayaDokterTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hasilBiayaDokterTextActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_hasilBiayaDokterTextActionPerformed
+
+    private void HapusPemeriksaanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusPemeriksaanActionPerformed
+        String sqlCommand = "DELETE FROM pemeriksaan WHERE pemeriksaan_id = ?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stmnt.setInt(1,selectedRow);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog (null, "Apakah anda yakin ingin menghapus jenis pemeriksaan","Warning",dialogButton);
+            if (dialogResult == JOptionPane.YES_OPTION){
+                stmnt.executeUpdate();
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePemeriksaan();
+    }//GEN-LAST:event_HapusPemeriksaanActionPerformed
+
+    private void TablePemeriksaanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablePemeriksaanMouseClicked
+        int row = TablePemeriksaan.getSelectedRow();
+
+        if(row == -1)
+        {
+            // No row selected
+            // Show error message
+            JOptionPane.showMessageDialog(null,"Silahkan pilih pemeriksaan terlebih dahulu");
+        }
+        else
+        {
+            int perawatan_id = (int) (TablePemeriksaan.getModel().getValueAt(row, 0));
+            String nama_perawatan = (TablePemeriksaan.getModel().getValueAt(row, 1).toString());
+            String biaya_perawatan = (TablePemeriksaan.getModel().getValueAt(row, 2).toString());
+            // do whatever you need to do with the data from the row
+            selectedRow = perawatan_id;
+            txt_namaPemeriksaan.setText(nama_perawatan);
+            txt_BiayaPemeriksaan.setText(biaya_perawatan);
+            
+        }
+    }//GEN-LAST:event_TablePemeriksaanMouseClicked
+
+    private void UbahPengobatanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UbahPengobatanActionPerformed
+        PreparedStatement stDokter = null,stPemeriksaan = null;
+        int DokterID = 0, PemeriksaanID = 0;
+        java.sql.Date sqldate = null;
+        String nm = (String)namaDokterCB.getSelectedItem();
+        String nmPemeriksaan = (String)namaPemeriksaanCB.getSelectedItem();
+        java.util.Date d = TanggalPengobatan.getDate();
+        if (d == null) {
+            System.out.println("No date specified!");
+        } else {
+            sqldate = new java.sql.Date(d.getTime());
+        }
+        //use sql to insert
+        String getDokterID = "SELECT dokter_id FROM dokter WHERE dokter_name = ?";
+        String getPeriksaID = "SELECT pemeriksaan_id FROM pemeriksaan WHERE nama_pemeriksaan = ?";
+        String sqlCommand = "UPDATE pengobatan SET dokter_id=?,pemeriksaan_id=?,tanggal_pemeriksaan=? WHERE pengobatan_id=?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+            stDokter = conn.prepareStatement(getDokterID);
+            stPemeriksaan = conn.prepareStatement(getPeriksaID);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stDokter.setString(1,nm);
+            rs = stDokter.executeQuery();
+            while(rs.next()){
+                DokterID = rs.getInt("dokter_id");
+            }
+            stPemeriksaan.setString(1,nmPemeriksaan);
+            rs = stPemeriksaan.executeQuery();
+            while(rs.next()){
+                PemeriksaanID = rs.getInt("pemeriksaan_id");
+            }
+            if (DokterID != 0 && PemeriksaanID != 0){
+                stmnt.setInt(1,DokterID);
+                stmnt.setInt(2,PemeriksaanID);
+                stmnt.setString(3, sqldate.toString());
+                stmnt.setInt(4, selectedRow);
+                //use stmnt.executeQuery(); for reading database
+                //use stmnt.executeUpdate(); for Insert, Update, Delete
+                stmnt.executeUpdate();
+            } else {
+                JOptionPane.showMessageDialog(null, "Terdapat kesalahan dalam input");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePengobatan();
+    }//GEN-LAST:event_UbahPengobatanActionPerformed
+
+    private void HapusPengobatanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HapusPengobatanActionPerformed
+        String sqlCommand = "DELETE FROM pengobatan WHERE pengobatan_id = ?";
+        try {
+            stmnt = conn.prepareStatement(sqlCommand);
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        try {
+            stmnt.setInt(1,selectedRow);
+            //use stmnt.executeQuery(); for reading database
+            //use stmnt.executeUpdate(); for Insert, Update, Delete
+            int dialogButton = JOptionPane.YES_NO_OPTION;
+            int dialogResult = JOptionPane.showConfirmDialog (null, "Apakah anda yakin ingin menghapus pengobatan","Warning",dialogButton);
+            if (dialogResult == JOptionPane.YES_OPTION){
+                stmnt.executeUpdate();
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        UpdateTablePengobatan();
+    }//GEN-LAST:event_HapusPengobatanActionPerformed
+
+    private void TablePengobatanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TablePengobatanMouseClicked
+        int row = TablePengobatan.getSelectedRow();
+        java.sql.Date sqldate = null;
+        if(row == -1)
+        {
+            // No row selected
+            // Show error message
+            JOptionPane.showMessageDialog(null,"Silahkan pilih pengobatan terlebih dahulu");
+        }
+        else
+        {
+            int pengobatan_id = (int) (TablePengobatan.getModel().getValueAt(row, 0));
+            String nama_dokter = (TablePengobatan.getModel().getValueAt(row, 2).toString());
+            String nama_perawatan = (TablePengobatan.getModel().getValueAt(row, 3).toString());
+            String tgl_perawatan = (TablePengobatan.getModel().getValueAt(row, 1).toString());
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
+            java.util.Date tgl;
+            tgl = null;
+            
+            try {
+                tgl = (java.util.Date) df.parse(tgl_perawatan);
+                sqldate = new Date(tgl.getTime());
+            } catch (ParseException ex) {
+                Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            // do whatever you need to do with the data from the row
+            selectedRow = pengobatan_id;
+            namaDokterCB.setSelectedItem(nama_dokter);
+            namaPemeriksaanCB.setSelectedItem(nama_perawatan);
+            TanggalPengobatan.setDate(sqldate);
+            
+        }
+    }//GEN-LAST:event_TablePengobatanMouseClicked
+
+    private void TotalDokterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TotalDokterActionPerformed
+        String sql = "SELECT pengobatan_id as ID , tanggal_pemeriksaan AS Tanggal, nama_pemeriksaan AS Nama_Pemeriksaan, dokter_name AS Nama_Dokter "+
+                ",biaya_pemeriksaan AS Biaya FROM pemeriksaan NATURAL JOIN pengobatan NATURAL JOIN dokter WHERE Nama_Dokter = ? AND strftime('%m', Tanggal) = ?";
+        
+        String nm = (String)ComboBoxDokter.getSelectedItem();
+        int bulan = namaBulan.getSelectedIndex() + 1;
+        String strBulan = "0"+bulan;
+        
+        try {
+            stmnt = conn.prepareStatement(sql);
+            stmnt.setString(1, nm);
+            stmnt.setString(2, strBulan);
+            rs = stmnt.executeQuery();
+            TableTotal.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        LabelBulan.setText(namaBulan.getSelectedItem().toString());
+        int rowCount = TableTotal.getRowCount();
+        int sum = 0;
+        for (int i = 0; i < rowCount; i++){
+            sum = sum + Integer.parseInt(TableTotal.getValueAt(i,4).toString());
+        }
+        hasilBiayaDokterText.setText(Integer.toString(sum));
+    }//GEN-LAST:event_TotalDokterActionPerformed
 
     /**
      * @param args the command line arguments
@@ -564,19 +1176,26 @@ public class dokter_form extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox ComboBoxDokter;
+    private javax.swing.JButton HapusDokter;
+    private javax.swing.JButton HapusPemeriksaan;
+    private javax.swing.JButton HapusPengobatan;
+    private javax.swing.JButton HapusRawat;
+    private javax.swing.JLabel LabelBulan;
+    private javax.swing.JTable TableDokter;
+    private javax.swing.JTable TablePemeriksaan;
+    private javax.swing.JTable TablePengobatan;
+    private javax.swing.JTable TableTotal;
+    private com.toedter.calendar.JDateChooser TanggalPengobatan;
+    private javax.swing.JButton TotalDokter;
+    private javax.swing.JButton TotalPersentase;
+    private javax.swing.JButton UbahDokter;
+    private javax.swing.JButton UbahPengobatan;
+    private javax.swing.JButton UbahRawat;
     private javax.swing.JButton addDokter;
-    private javax.swing.JButton addDokter1;
-    private javax.swing.JButton addDokter2;
-    private javax.swing.JButton addDokter3;
-    private javax.swing.JButton addDokter4;
-    private javax.swing.JButton addDokter5;
+    private javax.swing.JButton addPengobatan;
+    private javax.swing.JButton addRawat;
     private javax.swing.JTextField hasilBiayaDokterText;
     private javax.swing.JTextField hasilPersenApotek;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -585,26 +1204,34 @@ public class dokter_form extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
     private javax.swing.JLabel keahlian;
     private javax.swing.JLabel keahlian1;
     private javax.swing.JComboBox namaBulan;
     private javax.swing.JLabel namaDokter;
     private javax.swing.JLabel namaDokter1;
     private javax.swing.JComboBox namaDokterCB;
-    private javax.swing.JComboBox namaPerawatanCB;
+    private javax.swing.JComboBox namaPemeriksaanCB;
     private javax.swing.JLabel noHP;
-    private javax.swing.JTextField tanggal;
     private javax.swing.JTextField totalDokterAllText;
+    private javax.swing.JTextField txt_BiayaPemeriksaan;
     private javax.swing.JTextField txt_keahlian;
-    private javax.swing.JTextField txt_keahlian1;
     private javax.swing.JTextField txt_namaDokter;
-    private javax.swing.JTextField txt_namaDokter1;
+    private javax.swing.JTextField txt_namaPemeriksaan;
     private javax.swing.JTextField txt_noHP;
     // End of variables declaration//GEN-END:variables
 }

@@ -6,6 +6,7 @@
 package pengobatanifrina;
 import java.sql.*;
 import javax.swing.*;
+
 /**
  *
  * @author Satria
@@ -15,10 +16,8 @@ public class javaconnect {
     public static Connection ConnectDb(){
         try{
             Class.forName("org.sqlite.JDBC");
-            JOptionPane.showMessageDialog(null,"Connection established");
-            
             Connection conn = DriverManager.getConnection("jdbc:sqlite:C:/Users/Satria/Documents/NetBeansProjects/PengobatanIfrina/Irfina.sqlite");
-            
+            JOptionPane.showMessageDialog(null,"Connection established");
             return conn;
         }catch (Exception e){
             JOptionPane.showMessageDialog(null,e);
