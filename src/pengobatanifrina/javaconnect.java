@@ -13,10 +13,12 @@ import javax.swing.*;
  */
 public class javaconnect {
     Connection conn = null;
+    public static String path = "Irfina.sqlite";//C:/Users/gazandic/Documents/NetBeansProjects/PengobatanIfrina
     public static Connection ConnectDb(){
         try{
             Class.forName("org.sqlite.JDBC");
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:C:/Users/gazandic/Documents/NetBeansProjects/PengobatanIfrina/Irfina.sqlite");
+            String s = "jdbc:sqlite:"+path;
+            Connection conn = DriverManager.getConnection(s);
             JOptionPane.showMessageDialog(null,"Connection established");
             return conn;
         }catch (Exception e){
