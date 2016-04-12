@@ -63,6 +63,7 @@ public class dokter_form extends javax.swing.JFrame {
     addPengobatan = new javax.swing.JButton();
     UbahPengobatan = new javax.swing.JButton();
     HapusPengobatan = new javax.swing.JButton();
+    Urutkan = new javax.swing.JButton();
     namaDokterCB = new javax.swing.JComboBox();
     namaPemeriksaanCB = new javax.swing.JComboBox();
     jScrollPane5 = new javax.swing.JScrollPane();
@@ -175,6 +176,13 @@ public class dokter_form extends javax.swing.JFrame {
       }
     });
 
+    Urutkan.setText("Sort");
+    Urutkan.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        UrutkanActionPerformed(evt);
+      }
+    });
+
     TablePengobatan.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
         {null, null, null, null},
@@ -219,11 +227,13 @@ public class dokter_form extends javax.swing.JFrame {
                   .addComponent(namaPemeriksaanCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                   .addComponent(namaDokterCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
               .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(addPengobatan)
+                .addComponent(addPengobatan, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(UbahPengobatan)
+                .addComponent(UbahPengobatan, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(HapusPengobatan)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Urutkan)
                 .addGap(0, 0, Short.MAX_VALUE))
               .addGroup(jPanel3Layout.createSequentialGroup()
                 .addComponent(jLabel3)
@@ -247,10 +257,12 @@ public class dokter_form extends javax.swing.JFrame {
           .addComponent(jLabel3)
           .addComponent(TanggalPengobatan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addGap(18, 18, 18)
-        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(addPengobatan)
-          .addComponent(UbahPengobatan)
-          .addComponent(HapusPengobatan))
+        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(Urutkan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            .addComponent(addPengobatan)
+            .addComponent(UbahPengobatan)
+            .addComponent(HapusPengobatan)))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -1100,8 +1112,8 @@ public class dokter_form extends javax.swing.JFrame {
         else
         {
             int pengobatan_id = (int) (TablePengobatan.getModel().getValueAt(row, 0));
-            String nama_dokter = (TablePengobatan.getModel().getValueAt(row, 2).toString());
-            String nama_perawatan = (TablePengobatan.getModel().getValueAt(row, 3).toString());
+            String nama_dokter = (TablePengobatan.getModel().getValueAt(row, 3).toString());
+            String nama_perawatan = (TablePengobatan.getModel().getValueAt(row, 2).toString());
             String tgl_perawatan = (TablePengobatan.getModel().getValueAt(row, 1).toString());
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd"); 
             java.util.Date tgl;
@@ -1186,6 +1198,19 @@ public class dokter_form extends javax.swing.JFrame {
       }
   }//GEN-LAST:event_txt_noHPFocusLost
 
+  private void UrutkanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UrutkanActionPerformed
+    // TODO add your handling code here:
+    String sql = "SELECT pengobatan_id as ID , tanggal_pemeriksaan AS Tanggal, nama_pemeriksaan AS Nama_Pemeriksaan, dokter_name AS Nama_Dokter "+
+                ",biaya_pemeriksaan AS Biaya FROM pemeriksaan NATURAL JOIN pengobatan NATURAL JOIN dokter ORDER BY Tanggal DESC";
+        try {
+            stmnt = conn.prepareStatement(sql);
+            rs = stmnt.executeQuery();
+            TablePengobatan.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception ex) {
+            Logger.getLogger(dokter_form.class.getName()).log(Level.SEVERE, null, ex);
+        }
+  }//GEN-LAST:event_UrutkanActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1238,6 +1263,7 @@ public class dokter_form extends javax.swing.JFrame {
   private javax.swing.JButton UbahDokter;
   private javax.swing.JButton UbahPengobatan;
   private javax.swing.JButton UbahRawat;
+  private javax.swing.JButton Urutkan;
   private javax.swing.JButton addDokter;
   private javax.swing.JButton addPengobatan;
   private javax.swing.JButton addRawat;

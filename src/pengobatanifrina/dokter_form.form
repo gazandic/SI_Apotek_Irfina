@@ -140,11 +140,13 @@
                                       </Group>
                                   </Group>
                                   <Group type="102" attributes="0">
-                                      <Component id="addPengobatan" min="-2" max="-2" attributes="0"/>
+                                      <Component id="addPengobatan" min="-2" pref="131" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="UbahPengobatan" min="-2" max="-2" attributes="0"/>
+                                      <Component id="UbahPengobatan" min="-2" pref="119" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="HapusPengobatan" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="Urutkan" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="0" attributes="0">
@@ -178,10 +180,13 @@
                           <Component id="TanggalPengobatan" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="addPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="UbahPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="HapusPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="Urutkan" alignment="1" min="-2" pref="23" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="addPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="UbahPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="HapusPengobatan" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPane5" min="-2" pref="526" max="-2" attributes="0"/>
@@ -228,6 +233,14 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="HapusPengobatanActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="Urutkan">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Sort"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="UrutkanActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JComboBox" name="namaDokterCB">
