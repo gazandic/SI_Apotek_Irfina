@@ -589,6 +589,10 @@
               </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="txt_BiayaPemeriksaan">
+              <Events>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txt_BiayaPemeriksaanFocusLost"/>
+                <EventHandler event="inputMethodTextChanged" listener="java.awt.event.InputMethodListener" parameters="java.awt.event.InputMethodEvent" handler="txt_BiayaPemeriksaanInputMethodTextChanged"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="txt_namaPemeriksaan">
               <Events>
@@ -760,7 +764,7 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txt_noHP">
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txt_noHPActionPerformed"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="txt_noHPFocusLost"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="addDokter">
